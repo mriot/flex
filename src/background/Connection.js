@@ -10,7 +10,7 @@ class Connection {
 
   kill() {
     this.ws.close();
-    // this.port.disconnect();
+    this.port.disconnect();
   }
 
   init() {
@@ -30,9 +30,8 @@ class Connection {
 
     this.ws.onmessage = (event) => {
       this.data = JSON.parse(event.data);
-      chrome.tabs.sendMessage(this.tabId, this.data);
-      // this.port = chrome.tabs.connect(this.tabId, {name: "knockknock"});
-      // this.port.postMessage(this.data);
+      this.port = chrome.tabs.connect(this.tabId, {name: "knockknock"});
+      this.port.postMessage(this.data);
     };
   }
 }
