@@ -3,23 +3,20 @@ class Store {
     this.STORE = [];
   }
 
-  get(tabId) {
-    return this.STORE.find(entry => entry.tab.id === tabId);
+  get(tab) {
+    return this.STORE.find(entry => entry.tab.id === tab.id);
   }
 
   add(storeObject) {
-    // storeObject = {tabData, connectionData}
-    return this.STORE;
+    this.STORE.push(storeObject); // = {tabData, connectionData}
   }
 
-  remove(tabId) {
-    this.STORE.filter(entry => entry.tab.id !== tabId);
-    return this.STORE;
+  remove(tab) {
+    this.STORE = this.STORE.filter(entry => entry.tab.id !== tab.id);
   }
 
   clear() {
     this.STORE = [];
-    return this.STORE;
   }
 
   getStoreSize() {

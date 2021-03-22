@@ -10,21 +10,20 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.browserAction.setBadgeText({text: ""});
 });
 
-let STORE = [];
+const STORE = new Store();
 
-// listen for user interactions
 chrome.browserAction.onClicked.addListener((tab) => {
-  const current = STORE.find(s => s.tab.id === tab.id);
-  // console.log(current);
+  const activeTab = STORE.get(tab);
+  // console.log(activeTab);
 
-  if (current) {
+  if (activeTab) {
     // todo: send message to content script for cleanup?
     chrome.browserAction.setBadgeText({text: "", tabId: tab.id});
-    current.connection.kill();
-    STORE = STORE.filter(s => s.tab.id !== tab.id);
+    activeTab.connection.kill();
+    STORE.remove(tab);
 
-    if (STORE.length === 0) {
-      console.log("all dead");
+    if (STORE.getStoreSize() === 0) {
+      console.log("no more active tabs");
       chrome.tabs.onUpdated.removeListener(tabUpdate);
     }
 
@@ -39,45 +38,54 @@ chrome.browserAction.onClicked.addListener((tab) => {
   const connection = new Connection(tab.id);
   connection.init();
 
-  STORE.push({ connection, tab });
+  STORE.add({ connection, tab });
   
   chrome.tabs.onUpdated.addListener(tabUpdate);
 });
 
+/* 
+  tabUpdate Listener
+*/
 function tabUpdate(tabId, changeInfo, tab) {
-  console.log("NAVIGATED", tabId, tab.id);
   if (tab.status !== "complete") return;
+  console.log("NAVIGATED", tabId);
   
-  const current = STORE.find(s => s.tab.id === tab.id);
+  const activeTab = STORE.get(tab);
 
   // navigated on a tab we have access to
-  if (tab.url && current) {
-    setUp(tab, () => current.connection.reinit());
+  if (tab.url && activeTab) {
+    setUp(tab, () => activeTab.connection.reinit());
   }
   
   // user navigated away
   if (!tab.url) {
-    // remove current tab since we no longer have access to it's page
-    STORE = STORE.filter(s => s.tab.id !== tab.id);
+    // remove activeTab since we no longer have access to it's page
+    STORE.remove(tab);
 
-    if (STORE.length === 0) {
-      console.log("all dead");
+    if (STORE.getStoreSize() === 0) {
+      console.log("no more active tabs");
       chrome.tabs.onUpdated.removeListener(tabUpdate);
     }
+
+    console.log("DISABLED");
   }
 }
 
+/* 
+  setUp helper function
+*/
 function setUp(tab, cb = () => {}) {
   chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
+  // check if content script is already injected
   chrome.tabs.sendMessage(tab.id, { type: "ping" }, response => {
     // we don't mind if the receiving end doesn't exist
     if (chrome.runtime.lastError);
 
     if (!response) {
       console.log("injecting content script...");
-      chrome.tabs.executeScript({file: "/src/content/content.js"});
+      chrome.tabs.executeScript({ file: "/src/content/content.js" });
     }
 
-    cb(); // todo make prettier
+    cb();
   });
 }
