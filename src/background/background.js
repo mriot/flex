@@ -59,6 +59,8 @@ function tabUpdate(tabId, changeInfo, tab) {
   
   // user navigated away
   if (!tab.url) {
+    // kill connection if possible
+    activeTab?.connection.kill();
     // remove activeTab since we no longer have access to it's page
     STORE.remove(tab);
 
