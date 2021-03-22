@@ -14,7 +14,7 @@ class Connection {
   }
 
   init() {
-    this.ws = new WebSocket("ws://localhost:3000/local");
+    this.ws = new WebSocket("ws://localhost:3210/dev");
 
     this.ws.onopen = (event) => {
       console.log("✅ Socket connection to local dev server established");
