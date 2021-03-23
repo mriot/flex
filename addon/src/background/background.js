@@ -1,4 +1,4 @@
-chrome.runtime.onInstalled.addListener(function() {
+chrome.runtime.onInstalled.addListener(() => {
   /* ================================================= */
   const devWS = new WebSocket("ws://localhost:5522/dev");
   devWS.onmessage = (event) => {
@@ -12,7 +12,7 @@ chrome.runtime.onInstalled.addListener(function() {
 
 const STORE = new Store();
 
-chrome.browserAction.onClicked.addListener((tab) => {
+chrome.browserAction.onClicked.addListener(async (tab) => {
   const activeTab = STORE.get(tab);
   // console.log(activeTab);
 
@@ -27,37 +27,45 @@ chrome.browserAction.onClicked.addListener((tab) => {
       chrome.tabs.onUpdated.removeListener(tabUpdate);
     }
 
-    console.log("DISABLED");
+    console.log("DISABLED FOR CURRENT TAB");
     return;
   }
 
-  console.log("ENABLED");
-
-  setUp(tab);
+  await injectContentScript(tab);
 
   const connection = new Connection(tab.id);
-  connection.init();
+  const connected = await connection.init();
+
+  if (!connected) {
+    chrome.browserAction.setBadgeText({text: "FAIL", tabId: tab.id});
+    return;
+  }
 
   STORE.add({ connection, tab });
-  
+
   chrome.tabs.onUpdated.addListener(tabUpdate);
+  
+  chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
+  console.log("ENABLED FOR CURRENT TAB");
 });
 
 /* 
   tabUpdate Listener
 */
-function tabUpdate(tabId, changeInfo, tab) {
+async function tabUpdate(tabId, changeInfo, tab) {
   if (tab.status !== "complete") return;
-  console.log("NAVIGATED", tabId);
+  // console.log("NAVIGATED", tabId);
   
   const activeTab = STORE.get(tab);
 
-  // navigated on a tab we have access to
+  // navigated on a tab we have access to (e.g. reload)
   if (tab.url && activeTab) {
-    setUp(tab, () => activeTab.connection.reinit());
+    await injectContentScript(tab);
+    activeTab.connection.reinit();
+    chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
   }
   
-  // user navigated away
+  // user navigated away (other origin)
   if (!tab.url) {
     // kill connection if possible
     activeTab?.connection.kill();
@@ -69,25 +77,26 @@ function tabUpdate(tabId, changeInfo, tab) {
       chrome.tabs.onUpdated.removeListener(tabUpdate);
     }
 
-    console.log("DISABLED");
+    console.log("DISABLED FOR CURRENT TAB");
   }
 }
 
 /* 
-  setUp helper function
+  injectContentScript helper function
 */
-function setUp(tab, cb = () => {}) {
-  chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
-  // check if content script is already injected
-  chrome.tabs.sendMessage(tab.id, { type: "ping" }, response => {
-    // we don't mind if the receiving end doesn't exist
-    if (chrome.runtime.lastError);
+function injectContentScript(tab) {
+  return new Promise((resolve, reject) => {
+    // check if content script is already injected
+    chrome.tabs.sendMessage(tab.id, { type: "ping" }, response => {
+      // we don't mind if the receiving end doesn't exist
+      if (chrome.runtime.lastError);
 
-    if (!response) {
-      console.log("injecting content script...");
-      chrome.tabs.executeScript({ file: "/src/content/content.js" });
-    }
+      if (!response) {
+        console.log("injecting content script...");
+        chrome.tabs.executeScript({ file: "/src/content/content.js" });
+      }
 
-    cb();
+      resolve();
+    });
   });
 }
