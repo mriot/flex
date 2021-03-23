@@ -9,7 +9,8 @@
   "browser_action": {},
 
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
 
   "options_ui": {
