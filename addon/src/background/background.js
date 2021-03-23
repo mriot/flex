@@ -18,7 +18,6 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
 
   if (activeTab) {
     chrome.browserAction.setBadgeText({text: "", tabId: tab.id});
-    activeTab.connection.kill();
     STORE.remove(tab);
 
     if (STORE.getStoreSize() === 0) {
@@ -30,18 +29,10 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
     return;
   }
 
-  await injectContentScript(tab);
+  injectContentScript(tab);
 
-  const connection = new Connection(tab.id);
-  const connected = await connection.init();
-
-  if (!connected) {
-    chrome.browserAction.setBadgeText({text: "FAIL", tabId: tab.id});
-    return;
-  }
-
-  STORE.add({ connection, tab });
-
+  STORE.add({ tab });
+  
   chrome.tabs.onUpdated.addListener(tabUpdate);
   
   chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
@@ -59,15 +50,12 @@ async function tabUpdate(tabId, changeInfo, tab) {
 
   // navigated on a tab we have access to (e.g. reload)
   if (tab.url && activeTab) {
-    await injectContentScript(tab);
-    activeTab.connection.reinit();
+    injectContentScript(tab);
     chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
   }
   
   // user navigated away (other origin)
   if (!tab.url) {
-    // kill connection if possible
-    activeTab?.connection.kill();
     // remove activeTab since we no longer have access to it's page
     STORE.remove(tab);
 

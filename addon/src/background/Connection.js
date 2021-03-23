@@ -1,4 +1,4 @@
-class Connection {
+/* class Connection {
   constructor(tabId) {
     this.tabId = tabId;
   }
@@ -44,3 +44,4 @@ class Connection {
     });
   }
 }
+ */
