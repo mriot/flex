@@ -1,28 +1,28 @@
 {
-	"manifest_version": 2,
+  "manifest_version": 2,
 
-	"name": "FLEX",
-	"version": "0.0.1",
-	"description": "Flexible Theming Assistant",
-	"author": "mkremer",
+  "name": "FLEX",
+  "version": "0.0.1",
+  "description": "Flexible Theming Assistant",
+  "author": "mkremer",
 
-	"browser_action": {},
+  "browser_action": {},
 
-	"permissions": [
-		"activeTab"
-	],
+  "permissions": [
+    "activeTab"
+  ],
 
-	"options_ui": {
+  "options_ui": {
     "page": "./src/options.html",
     "open_in_tab": false
   },
 
-	"background": {
+  "background": {
     "scripts": [
-			"./src/background/Store.js",
-			"./src/background/Connection.js",
-			"./src/background/background.js"
-		],
-		"persistent": false
+      "./src/background/Store.js",
+      "./src/background/Connection.js",
+      "./src/background/background.js"
+    ],
+    "persistent": false
   }
 }
