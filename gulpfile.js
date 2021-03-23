@@ -11,7 +11,7 @@ const websocketTask = async () => {
 };
 
 const defaultTask = async () => {
-  await gulp.watch(["./src/**/*"], gulp.series(websocketTask));
+  await gulp.watch(["./addon/src/**/*"], gulp.series(websocketTask));
 };
 
 exports.default = defaultTask;
