@@ -12,11 +12,16 @@
 		"activeTab"
 	],
 
+	"options_ui": {
+    "page": "./src/options.html",
+    "open_in_tab": false
+  },
+
 	"background": {
     "scripts": [
-			"./src/background/background.js",
+			"./src/background/Store.js",
 			"./src/background/Connection.js",
-			"./src/background/Store.js"
+			"./src/background/background.js"
 		],
 		"persistent": false
   }

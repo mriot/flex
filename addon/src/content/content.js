@@ -1,5 +1,3 @@
-console.log("script loaded");
-
 /* 
 const config = {
   type: "css", // type of content/code
@@ -10,12 +8,12 @@ const config = {
 };
 */
 
-/*  * /
+/*  */
 chrome.runtime.onConnect.addListener(function(port) {
-  console.log(port);
+  // console.log(port);
 
   port.onMessage.addListener(function(message) {
-    console.log(message);
+    // console.log(message);
 
     switch (message.type) {
       case "ping":
@@ -49,39 +47,3 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 });
 /*  */
-
-/* */
-chrome.runtime.onMessage.addListener((message, sender, response) =>  {
-  // console.log(message);
-
-  switch (message.type) {
-    case "ping":
-      response("pong");
-      break;
-
-    case "css":
-      if (!document.querySelector("#local_stylesheet")) {
-        const styleTag = document.createElement("style");
-        styleTag.setAttribute("id", "local_stylesheet");
-        document.querySelector("head").appendChild(styleTag);
-      }
-
-      if (message.removeNodes?.length > 0) {
-        message.removeNodes.forEach(element => {
-          try {
-            const node = document.querySelector(element);
-            if (node && node.parentNode) node.parentNode.removeChild(node);
-          } catch (error) {
-            console.log("Could not remove element with selector", element, error);
-          }
-        });
-      }
-
-      document.querySelector("#local_stylesheet").innerHTML = message.code;
-      break;
-  
-    default:
-      console.log("lol bro wtf");
-  }
-});
-/* */
