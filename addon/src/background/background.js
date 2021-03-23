@@ -17,7 +17,6 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
   // console.log(activeTab);
 
   if (activeTab) {
-    // todo: send message to content script for cleanup?
     chrome.browserAction.setBadgeText({text: "", tabId: tab.id});
     activeTab.connection.kill();
     STORE.remove(tab);

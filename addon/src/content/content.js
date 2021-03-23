@@ -9,10 +9,14 @@ const config = {
 */
 
 /*  */
-chrome.runtime.onConnect.addListener(function(port) {
+chrome.runtime.onConnect.addListener(port => {
   // console.log(port);
 
-  port.onMessage.addListener(function(message) {
+  port.onDisconnect.addListener(port => {
+    // todo: cleanup (?)
+  });
+
+  port.onMessage.addListener(message => {
     // console.log(message);
 
     switch (message.type) {
