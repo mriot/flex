@@ -34,7 +34,8 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
   tabDelete Listener
 */
 function tabDelete(tabId) {
-  stop({ id: tabId }); // fake tab object since we only need the id here anyway
+  // fakeing tab object since we only need the id here anyway
+  if (STORE.get({ id: tabId })) stop({ id: tabId });
 }
 
 /* 
