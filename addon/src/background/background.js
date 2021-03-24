@@ -67,7 +67,7 @@ function stop(tab) {
   });
   console.log("STOPPED FOR CURRENT TAB");
 
-  // if the addon is not running on any tabs - disable it entirely
+  // if the addon is not running on any tab - disable it entirely
   if (STORE.getStoreSize() === 0) {
     chrome.tabs.onUpdated.removeListener(tabUpdate);
     chrome.tabs.onRemoved.removeListener(tabDelete);
@@ -82,9 +82,9 @@ function injectContentScript(tab) {
   return new Promise((resolve, reject) => {
     // check if content script is already injected
     chrome.tabs.sendMessage(tab.id, { type: "ping" }, response => {
-      // we don't mind if the receiving end doesn't exist
-      if (chrome.runtime.lastError);
+      if (chrome.runtime.lastError); // we don't mind if the receiving end doesn't exist...
 
+      // ...that just means we have to inject the script first
       if (!response) {
         console.log("injecting content script...");
         chrome.tabs.executeScript({ file: "/src/content/content.js" });
