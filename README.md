@@ -1,5 +1,8 @@
 # (WIP) FLEX 💪 - a flexible theming assistant
 
+![GitHub](https://img.shields.io/github/license/mriot/flex)
+![GitHub](https://img.shields.io/badge/version-0.0.1_(WIP)-lightgrey)
+
 ## A simple browser extension to inject your code on the fly.  
 
 ### It does not require any special permissions and does nothing until you grant access to the current page by pressing its icon.
