@@ -9,7 +9,8 @@
 
 ## 📝 Basic usage
 
-1) Install this extension in your browser (tested in chrome but should also run in firefox)
+1) Install this extension in your browser (tested in chrome but should also run in firefox)  
+**🚨 NOT IN THE STORES YET 🚨** Scroll down and check the **Development** section
 2) Setup a local WebSocket server - e.g. use [gulp-ws-server](https://www.npmjs.com/package/gulp-ws-server)
 3) Point the server at whatever URL you set in the extension's options page
    - Default is `ws://localhost:3210/dev`
@@ -104,6 +105,26 @@ exports.default = defaultTask
 When the badge says "FAIL", something went wrong...  
 That usually means, that it can't connect to your project's WebSocket server. (Re)start your server and the extension.
 Otherwise, check the background page of the extension. There's some logging that may help you.
+
+## 💻 Development
+
+After checking out the repo, you have to decide if you just want to work with the files in `addon/` of if you want a helpful dev workflow.  
+If you go with the last, Node.js is required.
+
+Install the extension in your browser by activating the devmode in `chrome://extensions/` and pressing `Load unpacked`. Locate the `addon/` directory from this project and you're done.
+
+### Dev workflow
+
+With Node.js installed, open up a terminal in the project's root directory and run `npm install`. After completion run `gulp`.
+
+This will spin up a local websocket server which should immediately show `starting connection` in the terminal.
+
+Now you can edit the files within `addon/`. Whenever you save a file, the extension will get automatically reloaded in the browser. If not, read on.
+
+**Note: Sometimes the extension goes into idle mode. To resolve this, simply click on the "background page" link which will open a devtools window. Keep it open.**  
+That will prevent your extension from becoming idle.
+
+Happy coding! 🍻
 
 ## 🤝 Contributing
 
