@@ -17,15 +17,7 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
   // console.log(activeTab);
 
   if (activeTab) {
-    chrome.browserAction.setBadgeText({text: "", tabId: tab.id});
-    STORE.remove(tab);
-
-    if (STORE.getStoreSize() === 0) {
-      console.log("no more active tabs");
-      chrome.tabs.onUpdated.removeListener(tabUpdate);
-    }
-
-    console.log("DISABLED FOR CURRENT TAB");
+    stop(tab);
     return;
   }
 
@@ -34,37 +26,53 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
   STORE.add({ tab });
   
   chrome.tabs.onUpdated.addListener(tabUpdate);
+  chrome.tabs.onRemoved.addListener(tabDelete);
   
   chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
   console.log("ENABLED FOR CURRENT TAB");
 });
 
 /* 
+  tabDelete Listener
+*/
+function tabDelete(tabId) {
+  stop({ id: tabId }); // fake tab object since we only need the id here anyway
+}
+
+/* 
   tabUpdate Listener
 */
-async function tabUpdate(tabId, changeInfo, tab) {
+function tabUpdate(tabId, changeInfo, tab) {
   if (tab.status !== "complete") return;
-  // console.log("NAVIGATED", tabId);
-  
+
   const activeTab = STORE.get(tab);
 
+  if (!activeTab) return; // we're probably running on another tab (thus the listeners are active)
+
   // navigated on a tab we have access to (e.g. reload)
-  if (tab.url && activeTab) {
+  if (tab.url) {
     injectContentScript(tab);
-    chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
+    chrome.browserAction.setBadgeText({ text: "✅", tabId: tab.id });
+  } else {
+    stop(tab); // user navigated away (other origin)
   }
-  
-  // user navigated away (other origin)
-  if (!tab.url) {
-    // remove activeTab since we no longer have access to it's page
-    STORE.remove(tab);
+}
 
-    if (STORE.getStoreSize() === 0) {
-      console.log("no more active tabs");
-      chrome.tabs.onUpdated.removeListener(tabUpdate);
-    }
+/* 
+  stop addon helper function
+*/
+function stop(tab) {
+  STORE.remove(tab); // remove tab from store since we no longer have or want access to it
+  chrome.browserAction.setBadgeText({ text: "", tabId: tab.id }, () => {
+    if (chrome.runtime.lastError); // (╯°□°)╯︵ ┻━┻
+  });
+  console.log("STOPPED FOR CURRENT TAB");
 
-    console.log("DISABLED FOR CURRENT TAB");
+  // if the addon is not running on any tabs - disable it entirely
+  if (STORE.getStoreSize() === 0) {
+    chrome.tabs.onUpdated.removeListener(tabUpdate);
+    chrome.tabs.onRemoved.removeListener(tabDelete);
+    console.log("ADDON SHUT DOWN");
   }
 }
 
