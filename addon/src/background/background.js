@@ -6,8 +6,6 @@ chrome.runtime.onInstalled.addListener(() => {
     if (event.data === "refresh") chrome.runtime.reload();
   };
   /* ================================================= */
-
-  chrome.browserAction.setBadgeText({text: ""});
 });
 
 const STORE = new Store();
