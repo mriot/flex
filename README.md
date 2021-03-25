@@ -1,11 +1,11 @@
-# (WIP) FLEX 💪 - a flexible theming assistant
+# FLEX 💪 a flexible theming assistant (WIP)
 
 ![GitHub](https://img.shields.io/github/license/mriot/flex)
 ![GitHub](https://img.shields.io/badge/version-0.0.1_(WIP)-lightgrey)
 
 ## A simple browser extension to inject your code on the fly.  
 
-### It does not require any special permissions and does nothing until you grant access to the current page by pressing its icon.
+### It does not require any special permission and does nothing until you grant access to the current page by pressing its icon.
 
 ## Table of Contents
 
@@ -23,34 +23,33 @@
 
 ## 📝 Basic usage
 
-1) Install this extension in your browser (tested in chrome but should also run in firefox)  
-2) Setup a local websocket server - e.g. use Node.js with [ws](https://www.npmjs.com/package/ws)
+1) Install the extension in your browser (tested in chrome but should also run in firefox)  
+2) Set up a local websocket server - e.g. use Node.js with the [ws package](https://www.npmjs.com/package/ws)
 3) Point the server at whatever URL you set in the extension's options page
    - Default is `ws://localhost:3210/dev`
 4) Further information can be found in the [Development section](#-development)
 
 ## 📌 Use cases
 
-1) You'll find one or two. Below is mine. :)
-2) I do a lot of theming (CSS, JS) for our company's WordPress sites and it can become cumbersome to copy & paste the code and reload the page for every little change
+1) You'll possibly find one or two 😄
+2) I do a lot of frontend stuff for our company's WordPress sites and it can become cumbersome to copy & paste the code and reload the page over and over again
 
 ## 🧩 Extension API
 
-Communication between your project and the extension is made over websockets.  
+Communication between your project and the extension is made via websockets.  
 You can use the following API to tell the extension what you want to do:
 
 ``` javascript
-// Example of a JSON stringified object ready to be sent to the extension
-const payload = JSON.stringify({
-  type: "css",
+{
+  type: "css", // we want to inject css code
   code: "body { color: red; }",
-  removeNodes: [".selector", "link[href*='style.css']"]
-})
+  removeNodes: [".selector", "link[href*='style.css']"] // we also want to remove these nodes from the DOM
+}
 ```
 
 | Key             | Type         | Values                       | Description                                                                        |
 |-----------------|--------------|------------------------------|------------------------------------------------------------------------------------|
-| type (required) | string       | css, js                      | Tells the extension what to do.<br>CSS will be updated without reloading the site. |
+| type            | string       | css, js                      | Tells the extension what to do.<br>CSS will be updated without reloading the site. |
 | code            | string       |                              | The code to be injected                                                            |
 | removeNodes     | string array | any valid css selector       | The extension will attempt to remove these nodes from the DOM                      |
 | blockResources  | string array | any valid resource path      | Note: Not implemented yet                                                          |
@@ -59,10 +58,10 @@ const payload = JSON.stringify({
 ## 🤔 How it works
 
 Upon activation, the extension injects a small script into the website's context.  
-This script is what connects your project over the extension with the webpage.  
+This script is what connects your project with the webpage.  
 
-Now, whenever your WebSocket server is sending something, FLEX will try to understand that request and for example, remove nodes from the DOM and inject some CSS.  
-*Tip: Often you can use the removal-feature to remove the original CSS resource and thus fully replace it with your local file*
+Now, whenever your websocket server is sending something, FLEX will try to understand that request and for example, remove nodes from the DOM and inject some CSS.  
+*Tip: Often you can use the node-removal-feature to remove the original CSS resource and thus fully replace it with your local file*
 
 ## 🧾 Example gulp setup
 
@@ -121,10 +120,10 @@ exports.default = defaultTask;
 ## 🤷‍♂️ Troubleshooting
 
 Always start your websocket server **first**. Upon activation the extension will immediately attempt to connect to your server **once**.  
-If that doesn't work, it will stay inactive. However, reloading the page or pressing the icon twice will trigger another attempt.
+Usually a simple page reload fixes all connection issues.
 
-That usually means, that it can't connect to your project's websocket server. (Re)start your server and the extension.
-Otherwise, check the background page of the extension. There's some logging that may help you.
+If that does not resolve your problem, restart your server and the extension or even try reinstalling it.  
+Of course you can always check the devtools, either in the background page or in the page itself.
 
 ## 💻 Development
 
@@ -135,16 +134,15 @@ Install the extension in your browser by activating the devmode in `chrome://ext
 
 ![extensions page devmode](images/extensions-page-devmode.jpg)
 
-### Dev workflow
+### Using the workflow
 
 With Node.js installed, open up a terminal in the project's root directory and run `npm install`.  
-After completion run `gulp`.
+After completion run `gulp`.  
 
-This will spin up a local websocket server which should immediately show `starting connection` in the terminal.
+Go to `chrome://extensions/` and press the reload button on the extension.  
+Your terminal should show `Connected`.
 
-![extension connected to local websocket server in terminal](images/terminal-gulp-devenv.jpg)
-
-Now you can edit the files within `addon/`. Whenever you save a file, the extension will get automatically reloaded in the browser. If not, read on.
+Now, whenever you edit a file within `addon/`, the extension will get automatically reloaded in the browser.
 
 **Note: Sometimes the extension goes into idle mode. To resolve this, simply click on the "background page" link which will open a devtools window. Keep it open.**  
 That will prevent your extension from becoming idle while in dev mode.
