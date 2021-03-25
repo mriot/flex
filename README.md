@@ -113,7 +113,7 @@ If you go with the last, Node.js is required.
 
 Install the extension in your browser by activating the devmode in `chrome://extensions/` and pressing `Load unpacked`. Locate the `addon/` directory from this project and you're done.
 
-![extensions page devmode](.images/extensions-page-devmode.jpg)
+![extensions page devmode](images/extensions-page-devmode.jpg)
 
 ### Dev workflow
 
@@ -121,14 +121,14 @@ With Node.js installed, open up a terminal in the project's root directory and r
 
 This will spin up a local websocket server which should immediately show `starting connection` in the terminal.
 
-![extension connected to local websocket server in terminal](.images/terminal-gulp-devenv.jpg)
+![extension connected to local websocket server in terminal](images/terminal-gulp-devenv.jpg)
 
 Now you can edit the files within `addon/`. Whenever you save a file, the extension will get automatically reloaded in the browser. If not, read on.
 
 **Note: Sometimes the extension goes into idle mode. To resolve this, simply click on the "background page" link which will open a devtools window. Keep it open.**  
 That will prevent your extension from becoming idle.
 
-![inactive background page](.images/flex-background-inactive.jpg)
+![inactive background page](images/flex-background-inactive.jpg)
 
 Happy coding! 🍻
 
