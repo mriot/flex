@@ -1,20 +1,33 @@
 # (WIP) FLEX 💪 - a flexible theming assistant
 
+![GitHub](https://img.shields.io/github/license/mriot/flex)
+![GitHub](https://img.shields.io/badge/version-0.0.1_(WIP)-lightgrey)
+
 ## A simple browser extension to inject your code on the fly.  
 
 ### It does not require any special permissions and does nothing until you grant access to the current page by pressing its icon.
 
+## Table of Contents
+
+- [Basic usage](#-basic-usage)
+- [Important](#-important)
+- [Use cases](#-use-cases)
+- [Extension API](#-extension-api)
+- [How it works](#-how-it-works)
+- [Example gulp setup](#-example-gulp-setup)
+- [Troubleshooting](#️-troubleshooting)
+- [Development](#-development)
+- [Contributing](#-contributing)
+- [Support](#-support)
+- [Disclaimer](#️-disclaimer)
+
 ## 📝 Basic usage
 
-1) Install this extension in your browser (tested in chrome but should also run in firefox)
-2) Setup a local WebSocket server - e.g. use [gulp-ws-server](https://www.npmjs.com/package/gulp-ws-server)
+1) Install this extension in your browser (tested in chrome but should also run in firefox)  
+2) Setup a local websocket server - e.g. use Node.js with [ws](https://www.npmjs.com/package/ws)
 3) Point the server at whatever URL you set in the extension's options page
    - Default is `ws://localhost:3210/dev`
-
-## 🚨 Important
-
-Always start your WebSocket server **first**. Upon activation the extension will immediately attempt to connect to your server **once**.  
-If that doesn't work, it will stay inactive. However, pressing the icon again will trigger another attempt.
+4) Further information can be found in the [Development section](#-development)
 
 ## 📌 Use cases
 
@@ -23,7 +36,7 @@ If that doesn't work, it will stay inactive. However, pressing the icon again wi
 
 ## 🧩 Extension API
 
-Communication between your project and the extension is made over WebSockets.  
+Communication between your project and the extension is made over websockets.  
 You can use the following API to tell the extension what you want to do:
 
 ``` javascript
@@ -41,8 +54,7 @@ const payload = JSON.stringify({
 | code            | string       |                              | The code to be injected                                                            |
 | removeNodes     | string array | any valid css selector       | The extension will attempt to remove these nodes from the DOM                      |
 | blockResources  | string array | any valid resource path      | Note: Not implemented yet                                                          |
-| debug           | bool         | true, false (default: false) | Note: Not implemented yet                                                          |
-
+| debug           | bool         | true, false (default: false) | Log data received by the client to the browser console                             |
 
 ## 🤔 How it works
 
@@ -55,52 +67,91 @@ Now, whenever your WebSocket server is sending something, FLEX will try to under
 ## 🧾 Example gulp setup
 
 ``` javascript
-const gulp = require("gulp")
-const fs = require("fs")
-const ws = require("gulp-ws-server")
+const gulp = require("gulp");
+const fs = require("fs");
+const less = require("gulp-less");
+const ws = require("ws");
 
-// create WebSocket server
-const wss = ws({
-  port: 3210,
-  path: "/dev",
-})
+// create a websocket server - default port and path
+const wss = new ws.Server({ port: 3210, path: "/dev" });
 
-const websocketTask = async () => {
-  // read file contents
-  const css = fs.readFileSync("./path/to/css/style.css", "utf8")
+// add a new method to the server object to "broadcast" to all clients
+wss.send = (data) => {
+  wss.clients.forEach((client) => client.send(data));
+};
 
-  // send message to extension
-  await wss.send(
-    JSON.stringify({
-      type: "css",
-      code: css,
-      removeNodes: ["link[href*='style.css']"] // any valid CSS selector
-    })
-  )
-}
+// deliver code on initial connection with a client
+wss.on("connection", (client) => {
+  console.log("Client connected");
+  // pass the freshly connected client as target
+  handleJS(client);
+  handleLESS(client);
+});
 
-const defaultTask = async () => {
-  await gulp.watch(
-    ["awesome-theme/less/**/*.less"], // watch files
-    { ignoreInitial: false },
-    gulp.series(websocketTask) // execute websocketTask when files change
-  )
-}
+// do your javascript stuff
+const handleJS = (target) => {
+  const js = fs.readFileSync("./src/script.js", "utf8");
+  target.send(JSON.stringify({ type: "js", code: js }));
+};
 
-// send stuff on initial connection to client
-wss.on("connection", (event) => {
-  websocketTask()
-})
+// do your less/sass/css/etc stuff
+const handleLESS = (target) => {
+  gulp
+    .src("src/*.less")
+    .pipe(less())
+    .pipe(gulp.dest("src/"))
+    .on("end", () => {
+      // once transpiled, read the css file and send it to the client(s)
+      const css = fs.readFileSync("./src/style.css", "utf8");
+      target.send(JSON.stringify({ type: "css", code: css }));
+    });
+};
 
-exports.default = defaultTask
+// file watcher - runs tasks whenever files change
+const defaultTask = () => {
+  // broadcast changes to all clients by passing 'wss' as target (this is the server object)
+  gulp.watch(["src/*.js"], { ignoreInitial: false }, function js() { return handleJS(wss); });
+  gulp.watch(["src/*.less"], { ignoreInitial: false }, function less() { return handleLESS(wss); });
+};
+
+exports.default = defaultTask;
 
 ```
 
 ## 🤷‍♂️ Troubleshooting
 
-When the badge says "FAIL", something went wrong...  
-That usually means, that it can't connect to your project's WebSocket server. (Re)start your server and the extension.
+Always start your websocket server **first**. Upon activation the extension will immediately attempt to connect to your server **once**.  
+If that doesn't work, it will stay inactive. However, reloading the page or pressing the icon twice will trigger another attempt.
+
+That usually means, that it can't connect to your project's websocket server. (Re)start your server and the extension.
 Otherwise, check the background page of the extension. There's some logging that may help you.
+
+## 💻 Development
+
+After checking out the repo, you have to decide if you just want to work with the files in `addon/` of if you want to use a nice dev workflow.  
+If you go with the last, Node.js is required.
+
+Install the extension in your browser by activating the devmode in `chrome://extensions/` and pressing `Load unpacked`. Locate the `addon/` directory from this project and you're done.
+
+![extensions page devmode](images/extensions-page-devmode.jpg)
+
+### Dev workflow
+
+With Node.js installed, open up a terminal in the project's root directory and run `npm install`.  
+After completion run `gulp`.
+
+This will spin up a local websocket server which should immediately show `starting connection` in the terminal.
+
+![extension connected to local websocket server in terminal](images/terminal-gulp-devenv.jpg)
+
+Now you can edit the files within `addon/`. Whenever you save a file, the extension will get automatically reloaded in the browser. If not, read on.
+
+**Note: Sometimes the extension goes into idle mode. To resolve this, simply click on the "background page" link which will open a devtools window. Keep it open.**  
+That will prevent your extension from becoming idle while in dev mode.
+
+![inactive background page](images/flex-background-inactive.jpg)
+
+Happy coding! 🍻
 
 ## 🤝 Contributing
 
