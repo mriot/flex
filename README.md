@@ -87,14 +87,14 @@ wss.on("connection", (client) => {
 });
 
 // do your javascript stuff
-const handleJS = (target) => {
+const handleJS = async (target) => {
   const js = fs.readFileSync("./src/script.js", "utf8");
-  target.send(JSON.stringify({ type: "js", code: js }));
+  await target.send(JSON.stringify({ type: "js", code: js }));
 };
 
 // do your less/sass/css/etc stuff
-const handleLESS = (target) => {
-  gulp
+const handleLESS = async (target) => {
+  await gulp
     .src("src/*.less")
     .pipe(less())
     .pipe(gulp.dest("src/"))
