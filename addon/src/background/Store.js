@@ -4,7 +4,7 @@ class Store {
   }
 
   get(tab) {
-    return this.STORE.find(entry => entry.tab.id === tab.id);
+    return this.STORE.find(storedTab => storedTab.id === tab.id);
   }
 
   add(storeObject) {
@@ -12,18 +12,18 @@ class Store {
   }
 
   remove(tab) {
-    this.STORE = this.STORE.filter(entry => entry.tab.id !== tab.id);
+    this.STORE = this.STORE.filter(storedTab => storedTab.id !== tab.id);
   }
 
   clear() {
     this.STORE = [];
   }
 
-  getStoreSize() {
+  getSize() {
     return this.STORE.length;
   }
 
-  getStore() {
+  getAll() {
     return this.STORE;
   }
 }
