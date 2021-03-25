@@ -1,13 +1,12 @@
 const gulp = require("gulp");
-const ws = require("gulp-ws-server");
+const ws = require("ws");
 
-const wss = ws({
-  port: 5522,
-  path: "/dev",
-});
+const wss = new ws.Server({ port: 5522, path: "/dev" });
+
+wss.on("connection", (client) => console.log("Connected"));
 
 const websocketTask = async () => {
-  await wss.send("refresh");
+  await wss.clients.forEach((client) => client.send("refresh"));
 };
 
 const defaultTask = async () => {

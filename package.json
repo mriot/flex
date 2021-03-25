@@ -1,20 +1,14 @@
 {
   "name": "flex",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "Flexible Theming Assistant",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "gulp"
   },
-  "author": "mkremer",
-  "license": "ISC",
+  "author": "mriot",
+  "license": "MIT",
   "devDependencies": {
     "gulp": "^4.0.2",
-    "gulp-connect": "^5.7.0",
-    "gulp-jsbeautifier": "^3.0.1",
-    "gulp-less": "^4.0.1",
-    "gulp-rename": "^2.0.0",
-    "gulp-ws-server": "^1.0.9",
-    "prettier": "2.2.1"
+    "ws": "^6.2.1"
   }
 }
