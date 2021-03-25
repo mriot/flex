@@ -21,13 +21,13 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
 
   injectContentScript(tab);
 
-  STORE.add({ tab });
+  STORE.add(tab);
   
   chrome.tabs.onUpdated.addListener(tabUpdate);
   chrome.tabs.onRemoved.addListener(tabDelete);
   
   chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
-  console.log("ENABLED FOR CURRENT TAB");
+  console.log("ENABLED FOR " + tab.url);
 });
 
 /* 
@@ -62,13 +62,18 @@ function tabUpdate(tabId, changeInfo, tab) {
 */
 function stop(tab) {
   STORE.remove(tab); // remove tab from store since we no longer have or want access to it
+  
+  chrome.tabs.sendMessage(tab.id, { type: "kill" }, () => {
+    if (chrome.runtime.lastError); // we don't mind if the receiving end doesn't exist
+  });
+  
   chrome.browserAction.setBadgeText({ text: "", tabId: tab.id }, () => {
     if (chrome.runtime.lastError); // (╯°□°)╯︵ ┻━┻
   });
   console.log("STOPPED FOR CURRENT TAB");
 
   // if the addon is not running on any tab - disable it entirely
-  if (STORE.getStoreSize() === 0) {
+  if (STORE.getSize() === 0) {
     chrome.tabs.onUpdated.removeListener(tabUpdate);
     chrome.tabs.onRemoved.removeListener(tabDelete);
     console.log("ADDON SHUT DOWN");
@@ -87,7 +92,7 @@ function injectContentScript(tab) {
       // ...that just means we have to inject the script first
       if (!response) {
         console.log("injecting content script...");
-        chrome.tabs.executeScript({ file: "/src/content/content.js" });
+        chrome.tabs.executeScript(tab.id, { file: "/src/content/content.js" });
       }
 
       resolve();

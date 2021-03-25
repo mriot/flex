@@ -11,106 +11,86 @@ const config = {
 (function() {
   // check wether content script is already injected
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    sendResponse("pong");
+    switch (request.type) {
+      case "ping":
+        sendResponse("pong");   
+        break;
+    
+      case "kill":
+        window.location.reload();
+        break;
+      default:
+        console.log("Unknown request type:", request.type);
+    }
   });
   
   // ws connection to server
   chrome.storage.sync.get(storage => {
-    const url = storage.wssUrl || "ws://localhost:3210/dev";
-    ws = new WebSocket(url);
+    const serverUrl = storage.wssUrl || "ws://localhost:3210/dev";
+    const ws = new WebSocket(serverUrl);
   
-    ws.onopen = (event) => {
-      console.log("✅ Socket connection to local dev server established");
+    ws.onopen = () => {
+      console.log("✅ Connected to local dev server");
     };
   
-    ws.onclose = (event) => {
-      console.log("ℹ️ Socket connection was closed");
+    ws.onclose = () => {
+      console.log("ℹ️ Connection to local dev server ended");
     };
   
-    ws.onerror = (event) => {
-      console.log("❌ Error with socket connection");
-      chrome.browserAction.setBadgeText({text: "FAIL", tabId: tabId});
+    ws.onerror = () => {
+      console.log("❌ Could not connect to local dev server");
     };
   
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data);
-      processRequest(data);
+      try {
+        handleData(JSON.parse(event.data));
+      } catch (error) {
+        console.log("❌ Could not parse JSON!", error);
+      }
     };
   });
   
-  function processRequest(data) {
+  function handleData(data) {
+    if (data.debug) {
+      console.log(data);
+    }
+
+    if (data.removeNodes?.length > 0) {
+      data.removeNodes.forEach(element => {
+        try {
+          const node = document.querySelector(element);
+          if (node && node.parentNode) node.parentNode.removeChild(node);
+        } catch (error) {
+          console.log("Could not remove element with selector", element, error);
+        }
+      });
+    }
+
     switch (data.type) {
       case "css":
         if (!document.querySelector("#local_stylesheet")) {
           const styleTag = document.createElement("style");
-          styleTag.setAttribute("id", "local_stylesheet");
+          styleTag.setAttribute("id", "_flex_local_stylesheet");
           document.querySelector("body").appendChild(styleTag);
         }
   
-        if (data.removeNodes?.length > 0) {
-          data.removeNodes.forEach(element => {
-            try {
-              const node = document.querySelector(element);
-              if (node && node.parentNode) node.parentNode.removeChild(node);
-            } catch (error) {
-              console.log("Could not remove element with selector", element, error);
-            }
-          });
-        }
-  
-        document.querySelector("#local_stylesheet").textContent = data.code;
-
+        document.querySelector("#_flex_local_stylesheet").textContent = data.code;
         break;
     
       case "js": 
-        if (document.querySelector("#local_script")) {
-          console.log("reloading...");
+        if (document.querySelector("#_flex_local_script")) {
           window.location.reload();
           return;
         }
 
         const scriptTag = document.createElement("script");
-        scriptTag.setAttribute("id", "local_script");
+        scriptTag.setAttribute("id", "_flex_local_script");
         scriptTag.textContent = data.code;
         document.querySelector("body").appendChild(scriptTag);
-
         break;
 
       default:
-        console.log("lol bro wtf", data.type);
+        console.log("Unknown data type:", data.type);
     }
   }
 })();
-
-
-/*  * /
-// say goodbye
-window.onbeforeunload = function() {
-  chrome.runtime.sendMessage("test", function(response) {
-    console.log(response);
-  });
-}
-
-chrome.runtime.onConnect.addListener(port => {
-  console.log("connected to extension", port);
-
-  port.onDisconnect.addListener(port => {
-    // todo: cleanup (?)
-    console.log("connection to extension terminated", port);
-  });
-
-  port.onMessage.addListener(message => {
-    console.log(message);
-
-    switch (message.type) {
-      case "ping":
-        response("pong");
-        break;
-
-      default:
-        console.log("lol bro wtf");
-    }
-  });
-});
-/*  */
