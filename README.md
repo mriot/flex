@@ -10,7 +10,6 @@
 ## Table of Contents
 
 - [Basic usage](#-basic-usage)
-- [Important](#-important)
 - [Use cases](#-use-cases)
 - [Extension API](#-extension-api)
 - [How it works](#-how-it-works)
@@ -43,7 +42,7 @@ You can use the following API to tell the extension what you want to do:
 {
   type: "css", // we want to inject css code
   code: "body { color: red; }",
-  removeNodes: [".selector", "link[href*='style.css']"] // we also want to remove these nodes from the DOM
+  removeNodes: ["link[href*='style.css']"] // we also want to remove this node from the DOM
 }
 ```
 
