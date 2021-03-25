@@ -117,7 +117,8 @@ Install the extension in your browser by activating the devmode in `chrome://ext
 
 ### Dev workflow
 
-With Node.js installed, open up a terminal in the project's root directory and run `npm install`. After completion run `gulp`.
+With Node.js installed, open up a terminal in the project's root directory and run `npm install`.  
+After completion run `gulp`.
 
 This will spin up a local websocket server which should immediately show `starting connection` in the terminal.
 
@@ -126,7 +127,7 @@ This will spin up a local websocket server which should immediately show `starti
 Now you can edit the files within `addon/`. Whenever you save a file, the extension will get automatically reloaded in the browser. If not, read on.
 
 **Note: Sometimes the extension goes into idle mode. To resolve this, simply click on the "background page" link which will open a devtools window. Keep it open.**  
-That will prevent your extension from becoming idle.
+That will prevent your extension from becoming idle while in dev mode.
 
 ![inactive background page](images/flex-background-inactive.jpg)
 
