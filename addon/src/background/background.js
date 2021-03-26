@@ -42,12 +42,12 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
   chrome.tabs.onUpdated.addListener(tabUpdate);
   chrome.tabs.onRemoved.addListener(tabDelete);
   
-  chrome.browserAction.setBadgeText({text: "✅", tabId: tab.id});
+  chrome.browserAction.setBadgeText({ text: "✅", tabId: tab.id });
   console.log("ENABLED FOR " + tab.url);
 });
 
 /* 
-  tabDelete Listener
+  listener for tab deletion
 */
 function tabDelete(tabId) {
   // fakeing tab object since we only need the id here anyway
@@ -55,7 +55,7 @@ function tabDelete(tabId) {
 }
 
 /* 
-  tabUpdate Listener
+  listener for tab updates (navigation, reload, ...)
 */
 function tabUpdate(tabId, changeInfo, tab) {
   if (tab.status !== "complete") return;
@@ -74,7 +74,8 @@ function tabUpdate(tabId, changeInfo, tab) {
 }
 
 /* 
-  stop addon helper function
+  function to stop the addon on a specific tab
+  or, if it's not running on any tab, fully shut it down 
 */
 function stop(tab) {
   STORE.remove(tab); // remove tab from store since we no longer have or want access to it
@@ -86,18 +87,19 @@ function stop(tab) {
   chrome.browserAction.setBadgeText({ text: "", tabId: tab.id }, () => {
     if (chrome.runtime.lastError); // (╯°□°)╯︵ ┻━┻
   });
+
   console.log("STOPPED FOR CURRENT TAB");
 
   // if the addon is not running on any tab - disable it entirely
   if (STORE.getSize() === 0) {
     chrome.tabs.onUpdated.removeListener(tabUpdate);
     chrome.tabs.onRemoved.removeListener(tabDelete);
-    console.log("ADDON SHUT DOWN");
+    console.log("Everything is cleaned - ready for idle!");
   }
 }
 
 /* 
-  injectContentScript helper function
+  function to inject the content script
 */
 function injectContentScript(tab) {
   return new Promise((resolve, reject) => {
@@ -108,7 +110,8 @@ function injectContentScript(tab) {
       // ...that just means we have to inject the script first
       if (!response) {
         console.log("injecting content script...");
-        chrome.tabs.executeScript(tab.id, { file: "/src/content/content.js" });
+        chrome.tabs.executeScript(tab.id, { file: "/src/content/content.js" }, () => resolve());
+        return;
       }
 
       resolve();
