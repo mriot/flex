@@ -6,6 +6,8 @@ devWS.onmessage = (event) => {
 };
 /* ================================================= */
 
+chrome.runtime.onSuspend.addListener(function() {
+  chrome.browserAction.setBadgeText({ text: "IDLE" });
 });
 
 const STORE = new Store();
