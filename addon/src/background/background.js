@@ -10,7 +10,10 @@ chrome.runtime.onSuspend.addListener(function() {
   chrome.browserAction.setBadgeText({ text: "IDLE" });
 });
 
-const STORE = new Store();
+chrome.browserAction.setBadgeText({ text: "" });
+
+// tabs where FLEX is running are stored here
+const STORE = new Store(); // gets purged when background page goes idle
 
 chrome.browserAction.onClicked.addListener(async (tab) => {
   const activeTab = STORE.get(tab);
@@ -21,10 +24,21 @@ chrome.browserAction.onClicked.addListener(async (tab) => {
     return;
   }
 
+  /**
+   * NOTE: We're connecting to the content scripts to 
+   * prevent chrome from suspending FLEX while its active.
+   * Once all ports are closed (i.e. FLEX is not running on any tab),
+   * chrome is allowed to suspend this background page.
+   */
+  chrome.runtime.onConnect.addListener((port) => {
+    console.log("connected to content script", port);
+  });
+
   injectContentScript(tab);
 
   STORE.add(tab);
   
+  // the port connection above, allows us to add these listeners conditionally
   chrome.tabs.onUpdated.addListener(tabUpdate);
   chrome.tabs.onRemoved.addListener(tabDelete);
   

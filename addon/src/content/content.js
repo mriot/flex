@@ -9,6 +9,8 @@ const config = {
 */
 
 (function() {
+  chrome.runtime.connect({ name: "prevent-chrome-to-suspend-background-page-while-flex-is-running" });
+
   // check wether content script is already injected
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.type) {
