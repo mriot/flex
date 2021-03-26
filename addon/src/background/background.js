@@ -1,11 +1,11 @@
-chrome.runtime.onInstalled.addListener(() => {
-  /* ================================================= */
-  const devWS = new WebSocket("ws://localhost:5522/dev");
-  devWS.onmessage = (event) => {
-    console.log("reloading...");
-    if (event.data === "refresh") chrome.runtime.reload();
-  };
-  /* ================================================= */
+/* ================================================= */
+const devWS = new WebSocket("ws://localhost:5522/dev");
+devWS.onmessage = (event) => {
+  console.log("reloading...");
+  if (event.data === "refresh") chrome.runtime.reload();
+};
+/* ================================================= */
+
 });
 
 const STORE = new Store();
