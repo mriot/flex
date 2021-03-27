@@ -1,28 +1,38 @@
 # FLEX 💪 a flexible theming assistant (WIP)
 
+![Addon](https://img.shields.io/badge/chrome-extension-orange)
+![GitHub](https://img.shields.io/badge/version-WIP-lightgrey)
 ![GitHub](https://img.shields.io/github/license/mriot/flex)
-![GitHub](https://img.shields.io/badge/version-0.0.1_(WIP)-lightgrey)
 
-## A simple browser extension to inject your code on the fly.  
+## A simple extension for chromium browsers to inject CSS and JS on the fly.  
 
-### It does not require any special permission and does nothing until you grant access to the current page by pressing its icon.
+### Does not required any special permission and has only access to the page where you activate it.
 
 ## Table of Contents
 
-- [Basic usage](#-basic-usage)
-- [Use cases](#-use-cases)
-- [Extension API](#-extension-api)
-- [How it works](#-how-it-works)
-- [Example gulp setup](#-example-gulp-setup)
-- [Troubleshooting](#️-troubleshooting)
-- [Development](#-development)
-- [Contributing](#-contributing)
-- [Support](#-support)
-- [Disclaimer](#️-disclaimer)
+- [🌐 Browser support](#-browser-support)
+- [📝 Basic usage](#-basic-usage)
+- [📌 Use cases](#-use-cases)
+- [🧩 Extension API](#-extension-api)
+- [🧾 Example setup with gulp](#-example-setup-with-gulp)
+- [🤔 How it works](#-how-it-works)
+- [💻 Development](#-development)
+- [🤷‍♂️ Troubleshooting](#️-troubleshooting)
+- [🆘 Support](#-support)
+- [🤝 Contributing](#-contributing)
+- [⚖️ Disclaimer](#️-disclaimer)
+
+## 🌐 Browser support
+
+- [Firefox is currently not supported](https://github.com/mriot/flex/issues/11)
+- Made for chromium based browsers
+  - Chrome: Fully supported (used in development)
+  - Brave: You may need to take down *Brave Shields*
+  - More testing needed (Opera, ...)
 
 ## 📝 Basic usage
 
-1) Install the extension in your browser (tested in chrome but should also run in firefox)  
+1) Install the extension in your browser 
 2) Set up a local websocket server - e.g. use Node.js with the [ws package](https://www.npmjs.com/package/ws)
 3) Point the server at whatever URL you set in the extension's options page
    - Default is `ws://localhost:3210/dev`
@@ -54,15 +64,7 @@ You can use the following API to tell the extension what you want to do:
 | blockResources  | string array | any valid resource path      | Note: Not implemented yet                                                          |
 | debug           | bool         | true, false (default: false) | Log data received by the client to the browser console                             |
 
-## 🤔 How it works
-
-Upon activation, the extension injects a small script into the website's context.  
-This script is what connects your project with the webpage.  
-
-Now, whenever your websocket server is sending something, FLEX will try to understand that request and for example, remove nodes from the DOM and inject some CSS.  
-*Tip: Often you can use the node-removal-feature to remove the original CSS resource and thus fully replace it with your local file*
-
-## 🧾 Example gulp setup
+## 🧾 Example setup with gulp
 
 ``` javascript
 const gulp = require("gulp");
@@ -116,13 +118,13 @@ exports.default = defaultTask;
 
 ```
 
-## 🤷‍♂️ Troubleshooting
+## 🤔 How it works
 
-Always start your websocket server **first**. Upon activation the extension will immediately attempt to connect to your server **once**.  
-Usually a simple page reload fixes all connection issues.
+Upon activation, the extension injects a small script into the website's context.  
+This script is what connects your project with the webpage.  
 
-If that does not resolve your problem, restart your server and the extension or even try reinstalling it.  
-Of course you can always check the devtools, either in the background page or in the page itself.
+Now, whenever your websocket server is sending something, FLEX will try to understand that request and for example, remove nodes from the DOM and inject some CSS.  
+*Tip: Often you can use the node-removal-feature to remove the original CSS resource and thus fully replace it with your local file*
 
 ## 💻 Development
 
@@ -150,14 +152,24 @@ That will prevent your extension from becoming idle while in dev mode.
 
 Happy coding! 🍻
 
-## 🤝 Contributing
+## 🤷‍♂️ Troubleshooting
 
-Feel free to contribute in any way. If I see an improvement for this tool, I'd be glad to add it.
+Have you checked the [Browser support](#-browser-support)?
+
+Always start your websocket server **first**. Upon activation the extension will immediately attempt to connect to your server **once**.  
+Usually a simple page reload fixes all connection issues.
+
+If that does not resolve your problem, restart your server and the extension or even try reinstalling it.  
+Of course you can always check the devtools, either in the background page or in the page itself.
 
 ## 🆘 Support
 
 If you experience any problems, contact me or open an issue.  
 I will try to respond asap.
+
+## 🤝 Contributing
+
+Feel free to contribute in any way. If I see an improvement for this tool, I'd be glad to add it.
 
 ## ⚖️ Disclaimer
 
