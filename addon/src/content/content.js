@@ -60,8 +60,13 @@ const config = {
     if (data.removeNodes?.length > 0) {
       data.removeNodes.forEach(element => {
         try {
-          const node = document.querySelector(element);
-          if (node && node.parentNode) node.parentNode.removeChild(node);
+          const nodes = document.querySelectorAll(element);
+          nodes.forEach(node => {
+            if (node && node.parentNode) {
+              node.parentNode.removeChild(node)
+              console.log("Removed node:", node);
+            };
+          });
         } catch (error) {
           console.log("Could not remove element with selector", element, error);
         }
