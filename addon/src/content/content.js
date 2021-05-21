@@ -9,6 +9,10 @@ const config = {
 */
 
 (function() {
+  function log(...args) {
+    console.log("FLEX:", ...args);
+  }
+
   chrome.runtime.connect({ name: "prevent-chrome-to-suspend-background-page-while-flex-is-running" });
 
   // check wether content script is already injected
@@ -17,12 +21,11 @@ const config = {
       case "ping":
         sendResponse("pong");   
         break;
-    
       case "kill":
         window.location.reload();
         break;
       default:
-        console.log("Unknown request type:", request.type);
+        log("Unknown request type:", request.type);
     }
   });
   
@@ -32,29 +35,29 @@ const config = {
     const ws = new WebSocket(serverUrl);
   
     ws.onopen = () => {
-      console.log("✅ Connected to local dev server");
+      log("✅ Connected to local dev server");
     };
   
     ws.onclose = () => {
-      console.log("ℹ️ Connection to local dev server ended");
+      log("ℹ️ Connection to local dev server ended");
     };
   
     ws.onerror = () => {
-      console.log("❌ Could not connect to local dev server");
+      log("❌ Could not connect to local dev server");
     };
   
     ws.onmessage = (event) => {
       try {
         handleData(JSON.parse(event.data));
       } catch (error) {
-        console.log("❌ Could not parse JSON!", error);
+        log("❌ Could not parse JSON!", error);
       }
     };
   });
   
   function handleData(data) {
     if (data.debug) {
-      console.log(data);
+      log(data);
     }
 
     if (data.removeNodes?.length > 0) {
@@ -64,11 +67,11 @@ const config = {
           nodes.forEach(node => {
             if (node && node.parentNode) {
               node.parentNode.removeChild(node)
-              console.log("Removed node:", node);
+              log("Removed node:", node);
             };
           });
         } catch (error) {
-          console.log("Could not remove element with selector", element, error);
+          log("Could not remove element with selector", element, error);
         }
       });
     }
@@ -97,7 +100,7 @@ const config = {
         break;
 
       default:
-        console.log("Unknown data type:", data.type);
+        log("Unknown data type:", data.type);
     }
   }
 })();
