@@ -1,4 +1,4 @@
-/* ================================================= */
+/* ================================================= * /
 const devWS = new WebSocket("ws://localhost:5522/dev");
 devWS.onmessage = (event) => {
   console.log("reloading...");
