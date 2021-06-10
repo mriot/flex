@@ -78,7 +78,7 @@ const config = {
 
     switch (data.type) {
       case "css":
-        if (!document.querySelector("#local_stylesheet")) {
+        if (!document.querySelector("#_flex_local_stylesheet")) {
           const styleTag = document.createElement("style");
           styleTag.setAttribute("id", "_flex_local_stylesheet");
           document.querySelector("body").appendChild(styleTag);
