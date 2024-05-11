@@ -1,4 +1,4 @@
-# (WIP) FLEX 💪 - a flexible theming assistant
+# FLEX 💪 - a flexible theming assistant
 
 ## A simple browser extension to inject your code on the fly.  
 
