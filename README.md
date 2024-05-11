@@ -110,7 +110,3 @@ Feel free to contribute in any way. If I see an improvement for this tool, I'd b
 
 If you experience any problems, contact me or open an issue.  
 I will try to respond asap.
-
-## ⚖️ Disclaimer
-
-There's no warranty, liability whatsoever.
